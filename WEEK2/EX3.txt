@@ -1,0 +1,49 @@
+1. JPA (Java Persistence API)
+JPA is just a specification (rules/standard), not a tool.
+It defines how Java objects should be mapped to database tables.
+It does NOT provide any implementation by itself.
+Think of it like a blueprint or interface.
+
+👉 Example:
+
+It defines annotations like @Entity, @Table, @Id
+But it does not contain code to actually save data
+2. Hibernate
+Hibernate is a real ORM framework (implementation of JPA).
+It follows JPA rules and provides actual functionality.
+It handles object–relational mapping (ORM) and database operations.
+
+👉 What Hibernate does:
+
+Converts Java objects ↔ database tables
+Executes SQL automatically
+Manages sessions and transactions
+
+👉 In short:
+
+Hibernate = JPA implementation + extra features
+3. Spring Data JPA
+Spring Data JPA is a high-level abstraction built on top of JPA (and usually Hibernate).
+It reduces boilerplate code (no need to write many DAO methods).
+You just define interfaces and Spring generates implementation automatically.
+
+👉 Example:
+
+public interface BookRepository extends JpaRepository<Book, Long> {
+}
+
+No need to write:
+
+SQL queries
+DAO implementation code
+🔥 Key Difference Summary
+Feature	JPA	Hibernate	Spring Data JPA
+Type	Specification	ORM Framework	Abstraction layer
+Implementation	❌ No	✅ Yes	Uses JPA/Hibernate
+Purpose	Rules for ORM	Actual ORM engine	Simplifies data access
+Boilerplate code	Medium	Medium	Very low
+SQL handling	No	Yes	Hidden
+🧠 Easy Analogy
+JPA = Rules of driving (traffic laws)
+Hibernate = A car that follows those rules
+Spring Data JPA = Self-driving car (you just say where to go)
