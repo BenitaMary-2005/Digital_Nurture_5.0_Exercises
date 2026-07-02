@@ -1,0 +1,265 @@
+EX 1:
+
+CREATE TABLE Customers (
+    CustomerID NUMBER PRIMARY KEY,
+    CustomerName VARCHAR2(50),
+    Age NUMBER,
+    Balance NUMBER,
+    IsVIP VARCHAR2(5)
+);
+
+CREATE TABLE Loans (
+    LoanID NUMBER PRIMARY KEY,
+    CustomerID NUMBER,
+    InterestRate NUMBER,
+    DueDate DATE
+);
+
+CREATE TABLE Accounts (
+    AccountID NUMBER PRIMARY KEY,
+    CustomerID NUMBER,
+    AccountType VARCHAR2(20),
+    Balance NUMBER
+);
+
+CREATE TABLE Employees (
+    EmployeeID NUMBER PRIMARY KEY,
+    EmployeeName VARCHAR2(50),
+    Department VARCHAR2(30),
+    Salary NUMBER
+);
+
+SELECT table_name FROM user_tables;
+
+INSERT INTO Customers VALUES (101, 'John', 65, 15000, 'FALSE');
+INSERT INTO Customers VALUES (102, 'Alice', 45, 8000, 'FALSE');
+INSERT INTO Customers VALUES (103, 'David', 70, 20000, 'FALSE');
+
+COMMIT;
+
+INSERT INTO Loans VALUES (201, 101, 10, DATE '2026-07-15');
+INSERT INTO Loans VALUES (202, 102, 12, DATE '2026-08-20');
+INSERT INTO Loans VALUES (203, 103, 9, DATE '2026-07-25');
+
+COMMIT;
+
+INSERT INTO Accounts VALUES (1001, 101, 'Savings', 50000);
+INSERT INTO Accounts VALUES (1002, 102, 'Savings', 30000);
+
+COMMIT;
+
+
+INSERT INTO Employees VALUES (1, 'Rahul', 'IT', 50000);
+INSERT INTO Employees VALUES (2, 'Priya', 'HR', 45000);
+
+COMMIT;
+
+
+1.SET SERVEROUTPUT ON;
+
+BEGIN
+    FOR c IN (
+        SELECT CustomerID
+        FROM Customers
+        WHERE Age > 60
+    )
+    LOOP
+        UPDATE Loans
+        SET InterestRate = InterestRate - 1
+        WHERE CustomerID = c.CustomerID;
+
+        DBMS_OUTPUT.PUT_LINE('Discount applied for Customer ID: ' || c.CustomerID);
+    END LOOP;
+
+    COMMIT;
+END;
+
+
+2.SET SERVEROUTPUT ON;
+
+BEGIN
+    FOR c IN (
+        SELECT CustomerID
+        FROM Customers
+        WHERE Balance > 10000
+    )
+    LOOP
+        UPDATE Customers
+        SET IsVIP = 'TRUE'
+        WHERE CustomerID = c.CustomerID;
+
+        DBMS_OUTPUT.PUT_LINE('VIP status updated for Customer ID: ' || c.CustomerID);
+    END LOOP;
+
+    COMMIT;
+END;
+
+
+3.SET SERVEROUTPUT ON;
+
+BEGIN
+    FOR l IN (
+        SELECT CustomerID, LoanID, DueDate
+        FROM Loans
+        WHERE DueDate BETWEEN SYSDATE AND SYSDATE + 30
+    )
+    LOOP
+        DBMS_OUTPUT.PUT_LINE(
+            'Reminder: Customer ' || l.CustomerID ||
+            ', Loan ID ' || l.LoanID ||
+            ' is due on ' || TO_CHAR(l.DueDate, 'DD-MON-YYYY')
+        );
+    END LOOP;
+END;
+
+
+
+EX 3:
+
+CREATE OR REPLACE PROCEDURE ProcessMonthlyInterest
+AS
+BEGIN
+    UPDATE Accounts
+    SET Balance = Balance + (Balance * 0.01)
+    WHERE AccountType = 'Savings';
+
+    COMMIT;
+
+    DBMS_OUTPUT.PUT_LINE('Monthly interest processed successfully.');
+END;
+
+
+SET SERVEROUTPUT ON;
+
+BEGIN
+    ProcessMonthlyInterest;
+END;
+
+SELECT * FROM Accounts;
+
+CREATE OR REPLACE PROCEDURE UpdateEmployeeBonus(
+    p_Department IN VARCHAR2,
+    p_BonusPercent IN NUMBER
+)
+AS
+BEGIN
+    UPDATE Employees
+    SET Salary = Salary + (Salary * p_BonusPercent / 100)
+    WHERE Department = p_Department;
+
+    COMMIT;
+
+    DBMS_OUTPUT.PUT_LINE('Bonus updated for department: ' || p_Department);
+END;
+
+SET SERVEROUTPUT ON;
+
+BEGIN
+    UpdateEmployeeBonus('IT', 10);
+END;
+
+SELECT * FROM Employees;
+
+
+CREATE OR REPLACE PROCEDURE TransferFunds(
+    p_FromAccount IN NUMBER,
+    p_ToAccount IN NUMBER,
+    p_Amount IN NUMBER
+)
+AS
+    v_Balance NUMBER;
+BEGIN
+    -- Get balance of source account
+    SELECT Balance
+    INTO v_Balance
+    FROM Accounts
+    WHERE AccountID = p_FromAccount;
+
+    -- Check sufficient balance
+    IF v_Balance >= p_Amount THEN
+
+        UPDATE Accounts
+        SET Balance = Balance - p_Amount
+        WHERE AccountID = p_FromAccount;
+
+        UPDATE Accounts
+        SET Balance = Balance + p_Amount
+        WHERE AccountID = p_ToAccount;
+
+        COMMIT;
+
+        DBMS_OUTPUT.PUT_LINE('Transfer Successful');
+
+    ELSE
+        DBMS_OUTPUT.PUT_LINE('Insufficient Balance');
+    END IF;
+
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        DBMS_OUTPUT.PUT_LINE('Invalid Account ID');
+END;
+
+
+
+SET SERVEROUTPUT ON;
+
+BEGIN
+    TransferFunds(1001, 1002, 5000);
+END;
+
+
+BEGIN
+    TransferFunds(1001, 1002, 999999);
+END;
+
+SELECT * FROM Accounts;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
